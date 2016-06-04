@@ -1,52 +1,53 @@
 ﻿#pragma strict
 
-public var foodParent : GameObject;
+public var worldOrigin : Transform;
 public var movementSpeed : float;
 
 private var me : CharacterController;
 private var target : Transform;
 
+private var idle = true;
+
 function Start(){
   me = GetComponent(CharacterController);
-  target = FindClosestChild();
+  target = GetNextTarget();
 }
 
 function Update(){
-  target = FindClosestChild();
+  target = GetNextTarget();
   if (target) {
-    //Calculate movement vector
-    var dir = Vector3.zero;
+    idle = false;
+    var diff = target.position - transform.position;
+    diff.y = 0;
     
-    //Move on x y towards target
-    dir = target.position - transform.position;
-    //Remove vertical component
-    dir = dir - Vector3.Project(dir, Vector3.up);
-    dir.Normalize();
-    
-    me.Move(dir * movementSpeed * Time.deltaTime);
-  }
-}
-
-function FindClosestChild(){
-  var myPos = transform.position;
-  
-  var children = foodParent.GetComponentInChildren(Transform);
-  
-  var closest : Transform;
-  var dist : float;
-  for(var t : Transform in children){
-    if(!closest || Vector3.Distance(myPos, t.position) < dist){
-      closest = t;
-      dist = Vector3.Distance(myPos, t.position);
+    if (diff.magnitude > 0.1F){
+      
+      //Calculate movement vector
+      var dir = Vector3.zero;
+      
+      //Move on x y towards target
+      dir = target.position - transform.position;
+      //Remove vertical component
+      dir.y = 0;
+      dir.Normalize();
+      
+      me.Move(dir * movementSpeed * Time.deltaTime);
+    } else {
+      Destroy(target.gameObject);
     }
+  } else {
+    idle = true;
   }
-  
-  return closest;
 }
 
-function OnControllerColliderHit(c: ControllerColliderHit){
-  if (c.gameObject.name == target.gameObject.name){
-    Destroy(c.gameObject);
+function FixedUpdate(){
+  //gravity pulls him down
+  me.Move(Vector3.down);
+}
+
+function GetNextTarget(){
+  for (var child : Transform in worldOrigin){
+    if (child.gameObject.tag == "Objective") return child;
   }
 }
 
