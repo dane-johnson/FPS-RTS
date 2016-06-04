@@ -1,28 +1,36 @@
 ﻿#pragma strict
 
 public var foodParent : GameObject;
+public var movementSpeed : float;
 
+private var me : CharacterController;
 private var target : Transform;
-private var isFacingTarget = false;
 
 function Start(){
+  me = GetComponent(CharacterController);
   target = FindClosestChild();
 }
 
-function FixedUpdate(){
-  var rb = GetComponent(Rigidbody);
-  
-  if(!isFacingTarget){
-    turnToFaceTarget();
-  } else {
-    moveTowardsTarget();
+function Update(){
+  target = FindClosestChild();
+  if (target) {
+    //Calculate movement vector
+    var dir = Vector3.zero;
+    
+    //Move on x y towards target
+    dir = target.position - transform.position;
+    //Remove vertical component
+    dir = dir - Vector3.Project(dir, Vector3.up);
+    dir.Normalize();
+    
+    me.Move(dir * movementSpeed * Time.deltaTime);
   }
 }
 
 function FindClosestChild(){
   var myPos = transform.position;
   
-  var children = foodParent.GetComponentInChildren.<Transform>();
+  var children = foodParent.GetComponentInChildren(Transform);
   
   var closest : Transform;
   var dist : float;
@@ -36,5 +44,10 @@ function FindClosestChild(){
   return closest;
 }
 
-function turnToFaceTarget(){}
-function moveTowardsTarget(){}
+function OnControllerColliderHit(c: ControllerColliderHit){
+  if (c.gameObject.name == target.gameObject.name){
+    Destroy(c.gameObject);
+  }
+}
+
+@script RequireComponent(CharacterController)
