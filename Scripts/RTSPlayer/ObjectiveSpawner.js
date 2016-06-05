@@ -1,7 +1,11 @@
 ﻿#pragma strict
 
 var walkPoint : GameObject;
-var worldOrigin : Transform;
+private var worldOrigin : Transform;
+
+function Start(){
+  worldOrigin = GameObject.Find("WorldOrigin").transform;
+}
 
 function Update(){
   

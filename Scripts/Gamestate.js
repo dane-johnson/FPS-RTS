@@ -1,26 +1,10 @@
 ﻿#pragma strict
 
-var playerClass : PlayerClass;
+import UnityEngine.Networking;
 
-var rtsCamera : GameObject;
-var fpsCamera : GameObject;
-
-enum PlayerClass {
-  FPS,
-  RTS
+class Gamestate extends NetworkBehaviour{
+  @SyncVar
+  var playerClass : PlayerClass;
 }
 
-function Start(){
-  //cache the cameras
-  rtsCamera = GameObject.Find("RTSCamera");
-  fpsCamera = GameObject.Find("FPSCamera");
-  
-  switch (playerClass){
-  case PlayerClass.FPS:
-    rtsCamera.SetActive(false);
-    break;
-  case PlayerClass.RTS:
-    fpsCamera.SetActive(false);
-    break;
-  }
-}
+enum PlayerClass {FPS,RTS}
